@@ -1,15 +1,28 @@
 #!/usr/bin/env python
 
+import time
+
 # ros imports
 import rospy
 import tf
 from std_msgs.msg import Header
 from geometry_msgs.msg import PoseStamped
+from trapezoid.srv import *
 
 class TrapezoidClient:
     def __init__(self):
         pub = rospy.Publisher('/trapezoid/turret_pose', PoseStamped, queue_size=10)
         rospy.init_node('trapezoid_client', anonymous=True)
+
+        # wait for service
+        print "waiting for /trapezoid/shoot service..."
+        rospy.wait_for_service('/trapezoid/shoot')
+        print "ok"
+
+        # ex. call shoot service
+        time.sleep(3)
+        self.call_shoot_service()
+
         rate = rospy.Rate(10) # 10hz
         while not rospy.is_shutdown():
             # convert roll, pitch, yaw to quaternion
@@ -27,6 +40,16 @@ class TrapezoidClient:
 
             pub.publish(pose_req)
             rate.sleep()
+
+    def call_shoot_service(self):
+        try:
+            shoot = rospy.ServiceProxy('/trapezoid/shoot', Shoot)
+            pwm_speed = 1500
+            duration = 2000
+            shoot_response = shoot(pwm_speed, duration)
+            return shoot_response.result
+        except rospy.ServiceException, e:
+            print "service call failed: %s"%e
 
 if __name__ == '__main__':
     try:

@@ -41,11 +41,11 @@ class Trapezoid:
         self.kalConstZ = 100.0
 
         # ---------------- setup ros ----------------
-        # subscribers
-        rospy.Subscriber('/trapezoid/setpoint_pose', PoseStamped, self.handle_turret_pose)
-
         # publishers
         self.pub_pose = rospy.Publisher('/trapezoid/pose', PoseStamped, queue_size=10)
+
+        # subscribers
+        rospy.Subscriber('/trapezoid/setpoint_pose', PoseStamped, self.handle_turret_pose)
 
         # services
         rospy.Service('/trapezoid/shoot', Shoot, self.handle_shoot)
@@ -129,8 +129,11 @@ class Trapezoid:
 
     # -------- service handlers --------
     def handle_shoot(self, req):
-        print req
-        return req
+        print "shoot service called"
+        print req.pwm_speed
+        print req.duration
+        # TODO: actually shoot stuff
+        return True
 
     # -------- publishers --------
     def publish_pose(self):
