@@ -7,7 +7,7 @@ ROS driver for the trapezoid board arduino system.
 			Pose of the trapezoid board in quaternion representation. Position is unused.
 
 	Subscribed Topics
-		/trapezoid/turret_pose (geometry_msgs/PoseStamped)
+		/trapezoid/setpoint_pose (geometry_msgs/PoseStamped)
 			Requested orientation of the turret in quaternion representation. Only pitch and yaw components of the quarternion are used.
 
 	Services
