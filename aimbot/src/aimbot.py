@@ -22,6 +22,8 @@ class AimBot:
         # fields
         self.setpoint_yaw = 0    # the yaw setpoint in radians +right, -left
         self.setpoint_pitch = 0  # the pitch setpoint in radians +up, -down
+        self.target_locked = False  # true when enemy lock is valid
+        self.detected_enemy_timeout = 0  # timeout counter, timed out when 0
 
         # ---------------- setup ros ----------------
         # publishers
@@ -36,20 +38,36 @@ class AimBot:
         rate = rospy.Rate(10)
         while not rospy.is_shutdown():
             publish_output_pose()
+
+            # timeout counter
+            if (self.detected_enemy_timeout == 0):
+                self.target_locked = False
+                # TODO: return to center when timed out?
+            else:
+                self.detected_enemy_timeout -= 1
+
             rate.sleep()
 
     def handle_detected_enemy(self, data):
+        self.detected_enemy_timeout = 10
         # print data.distance
         # print data.y_rotation
         # print data.z_rotation
         new_yaw = self.setpoint_yaw + data.z_rotation
         new_pitch = self.setpoint_pitch + data.y_rotation
 
+        # check target locked
+        new_yaw_valid = new_yaw < self.max_yaw and new_yaw > self.min_yaw
+        new_pitch_valid = new_pitch < self.max_pitch and new_pitch > self.min_pitch
+        self.target_locked = new_yaw_valid and new_pitch_valid
+
         # limit movement
         new_yaw = min(new_yaw, self.max_yaw)
         new_yaw = max(new_yaw, self.min_yaw)
         new_pitch = min(new_pitch, self.max_pitch)
         new_pitch = max(new_pitch, self.min_pitch)
+
+        # TODO: distance correction kinematics
 
         self.setpoint_yaw = new_yaw
         self.setpoint_pitch = new_pitch
