@@ -17,14 +17,14 @@
 
 2. After you run the `roscore`, open a new terminal and pull the new code from github inside the ~/catkin_ws/src/robomasters_ros
 
-        `catkin_make`
+    `catkin_make`
 
-        `source devel/setup.bash`
+    `source devel/setup.bash`
 
-        `rosrun trapezoid trapezoid_node.py/`
-        
+    `rosrun trapezoid trapezoid_node.py/`
+ 
 3. Test to see if your node is correctly running, open a new terminal and 
 
-        ⋅`rosnode list`
+    `rosnode list`
 
-        `rostopic list`
+    `rostopic list`
