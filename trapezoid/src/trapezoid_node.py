@@ -54,12 +54,12 @@ class Trapezoid:
         rospy.init_node('trapezoid', anonymous=True)
 
         # ---------------- setup serial port ----------------
-        #self.arduinoData = serial.Serial(serial_port, baudrate)
+        self.arduinoData = serial.Serial(serial_port, baudrate)
 
         rate = rospy.Rate(10) # 10hz
         while not rospy.is_shutdown():
             # (1) transmit to arduino
-            #self.arduinoTX()
+            self.arduinoTX()
             
             # (2) receive from arduino (disabled for now)
             #if(self.arduinoData.inWaiting() > 0):
@@ -123,9 +123,8 @@ class Trapezoid:
         yaw = euler[2]
 
         # convert received radians to int commands
-        # !!!!TODO: map received radians to pitch commands
-        self.pitch_req = pitch
-        self.yaw_req = yaw
+        self.pitch_req = int(pitch * 1000)
+        self.yaw_req = int(yaw * 1000)
 
     # -------- service handlers --------
     def handle_shoot(self, req):
