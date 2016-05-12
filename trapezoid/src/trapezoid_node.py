@@ -54,7 +54,12 @@ class Trapezoid:
         rospy.init_node('trapezoid', anonymous=True)
 
         # ---------------- setup serial port ----------------
-        self.arduinoData = serial.Serial(serial_port, baudrate)
+        self.arduinoData = serial.Serial(serial_port, baudrate, timeout=1)
+
+	# reset the arduino on connect
+	self.arduinoData.setDTR(True)
+	time.sleep(1)
+	self.arduinoData.setDTR(False)
 
         rate = rospy.Rate(10) # 10hz
         while not rospy.is_shutdown():
@@ -72,6 +77,7 @@ class Trapezoid:
 
     # Send information to arduino
     def arduinoTX(self):
+        print "sending pitch " + str(self.pitch_req)
         self.tx[0] = (self.header >> 8) & 255
         self.tx[1] = self.header & 255
         self.tx[2] = self.feeder_motor_state

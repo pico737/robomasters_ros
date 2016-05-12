@@ -28,8 +28,8 @@ class TrapezoidClient:
         while not rospy.is_shutdown():
             # convert roll, pitch, yaw to quaternion
             roll_req = 0
-            pitch_req = math.pi / 4
-            yaw_req = 0.523
+            pitch_req = 1.57
+            yaw_req = 1.0
             quaternion_req = tf.transformations.quaternion_from_euler(roll_req, pitch_req, yaw_req)
 
             pose_req = PoseStamped()
