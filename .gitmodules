@@ -1,0 +1,3 @@
+[submodule "robomasters_ros"]
+	path = robomasters_ros
+	url = https://github.com/pico737/robomasters_ros.git
