@@ -38,15 +38,15 @@ class TrapezoidClient:
             pose_req.pose.orientation.y = quaternion_req[1]
             pose_req.pose.orientation.z = quaternion_req[2]
             pose_req.pose.orientation.w = quaternion_req[3]
-
+            #self.call_shoot_service()
             pub.publish(pose_req)
             rate.sleep()
 
     def call_shoot_service(self):
         try:
             shoot = rospy.ServiceProxy('/trapezoid/shoot', Shoot)
-            pwm_speed = 1500
-            duration = 2000
+            pwm_speed = 99
+            duration = 5
             shoot_response = shoot(pwm_speed, duration)
             return shoot_response.result
         except rospy.ServiceException, e:

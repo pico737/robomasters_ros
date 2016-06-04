@@ -77,7 +77,7 @@ class Trapezoid:
 
     # Send information to arduino
     def arduinoTX(self):
-        print "sending pitch " + str(self.pitch_req)
+        print "friction state " + str(self.friction_motor_state)
         self.tx[0] = (self.header >> 8) & 255
         self.tx[1] = self.header & 255
         self.tx[2] = self.feeder_motor_state
@@ -138,6 +138,12 @@ class Trapezoid:
         print req.pwm_speed
         print req.duration
         # TODO: actually shoot stuff
+        self.feeder_motor_pwm = req.pwm_speed 
+        self.feeder_motor_state = 1 
+        self.friction_motor_state = 1 
+        time.sleep(req.duration) 
+        self.feeder_motor_state = 0 
+        self.friction_motor_state = 0
         return True
 
     # -------- publishers --------
