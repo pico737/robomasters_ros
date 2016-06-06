@@ -2,6 +2,7 @@
 
 import time
 import math
+import subprocess
 
 # ros imports
 import rospy
@@ -25,6 +26,12 @@ class TrapezoidClient:
         self.call_shoot_service()
 
         rate = rospy.Rate(10) # 10hz
+            
+        # sets up reading coordinates on std out from cv code
+        #cmd = ["rosrun rm_cv ZED_PROJECT"]
+        #p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        
+
         while not rospy.is_shutdown():
             # convert roll, pitch, yaw to quaternion
             roll_req = 0
@@ -40,7 +47,14 @@ class TrapezoidClient:
             pose_req.pose.orientation.w = quaternion_req[3]
             #self.call_shoot_service()
             pub.publish(pose_req)
-            rate.sleep()
+            #rate.sleep()
+
+            # process stdout to store cv info
+            #line = p.stdout.readline()
+            #if line != "":
+            #    strLine = line.rstrip()
+            #    x_center,y_center,distance = x.split(", ")
+            #    printf("%d, %d, %d\n", x_center, y_center, distance)
 
     def call_shoot_service(self):
         try:
