@@ -77,7 +77,7 @@ class Trapezoid:
 
     # Send information to arduino
     def arduinoTX(self):
-        print "friction state " + str(self.friction_motor_state)
+        #print "friction state " + str(self.friction_motor_state)
         self.tx[0] = (self.header >> 8) & 255
         self.tx[1] = self.header & 255
         self.tx[2] = self.feeder_motor_state
