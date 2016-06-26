@@ -186,7 +186,7 @@ ${Eigen_INCLUDE_DIRS}
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
-add_executable(senselaser src/senselaser.cpp)
-target_link_libraries(senselaser ${catkin_LIBRARIES})
+#add_executable(senselaser src/senselaser.cpp)
+#target_link_libraries(senselaser ${catkin_LIBRARIES})
 #add_executable(topcl src/topcl.cpp)
 #target_link_libraries(topcl ${catkin_LIBRARIES})
