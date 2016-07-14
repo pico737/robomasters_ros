@@ -17,8 +17,8 @@ class Trapezoid:
     def __init__(self, serial_port, baudrate):
         # ---------------- class fields ----------------
         # tx and rx to/from Arduino
-        self.tx = [0] * 16
-        self.rx = [0] * 16
+        self.tx = [0] * 32
+        self.rx = [0] * 32
 
         # Data to be tx to Arduino
         self.header = 0

@@ -27,15 +27,11 @@ class TrapezoidClient:
 
         rate = rospy.Rate(10) # 10hz
 
-        # sets up reading coordinates on std out from cv code
-        cmd = ["stdbuf", "-oL", "rosrun", "rm_cv","ZED_PROJECT"]
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-
         while not rospy.is_shutdown():
             # convert roll, pitch, yaw to quaternion
             roll_req = 0
-            # pitch_req = 1.57
-            # yaw_req = 1.0
+            pitch_req = 1.57
+            yaw_req = 1.0
             quaternion_req = tf.transformations.quaternion_from_euler(roll_req, pitch_req, yaw_req)
 
             pose_req = PoseStamped()
@@ -47,17 +43,6 @@ class TrapezoidClient:
             #self.call_shoot_service()
             pub.publish(pose_req)
             rate.sleep()
-
-            #process stdout to store cv info
-            if p.poll() is None:
-                line = p.stdout.readline()
-                if line != "" and "ZED" not in line:
-                    x_center,y_center,distance = line.split(", ")
-                    pitch_req = -1 * y_center / distance
-                    yaw_req = 1 * x_center / distance
-
-                    #print ("Received: %d, %d, %d", x_center, y_center, distance)
-
 
     def call_shoot_service(self):
         try:
