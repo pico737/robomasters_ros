@@ -23,8 +23,10 @@
 
     `rosrun trapezoid trapezoid_node.py/`
  
-3. Test to see if your node is correctly running, open a new terminal and 
+3. Test to see if your node is correctly running without error, the serial communication is working, open a new terminal and 
 
     `rosnode list`
 
     `rostopic list`
+ 
+    `rosrun trapezoid client.py`
