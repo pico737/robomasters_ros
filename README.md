@@ -19,7 +19,7 @@
 
     `catkin_make -DCATKIN_BLACKLIST_PACKAGES="rm_cv;sensor_send"`
 
-    `source devel/setup.bash`
+    `source devel/setup.bash` (not necessary if it is in ./bashrc)
 
     `rosrun trapezoid trapezoid_node.py/`
  
