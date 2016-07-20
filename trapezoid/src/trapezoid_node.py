@@ -14,7 +14,7 @@ from std_msgs.msg import Header
 from geometry_msgs.msg import PoseStamped
 from trapezoid.srv import *
 from trapezoid.msg import *
-from Move.msg import Move
+#from Move.msg import Move
 
 class Trapezoid:
     def __init__(self, serial_port, baudrate):
@@ -50,7 +50,7 @@ class Trapezoid:
 
         # subscribers
         rospy.Subscriber('/trapezoid/setpoint_pose', PoseStamped, self.handle_turret_pose)
-        rospy.Subscriber('testp', Move, self.publish_pose)
+       # rospy.Subscriber('testp', Move, self.publish_pose)
 
         # services
         rospy.Service('/trapezoid/shoot', Shoot, self.handle_shoot)
@@ -170,11 +170,11 @@ class Trapezoid:
         return True
 
     # -------- publishers --------
-    def publish_pose(self,data):
+    def publish_pose(self):
         # !!!!TODO: convert kalman angles to radians (rpy -> xyz)
-        roll_send = data.drive
-        pitch_send = data.strafe
-        yaw_send = data.rotate
+        roll_send = 0
+        pitch_send = 0
+        yaw_send = 3
         
 
         # convert roll, pitch, yaw to quaternion
