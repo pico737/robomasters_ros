@@ -1,7 +1,7 @@
  #!/usr/bin/env python
  
   import rospy
-  from Move.msg import *
+ import Move
   
   
 def talker():
