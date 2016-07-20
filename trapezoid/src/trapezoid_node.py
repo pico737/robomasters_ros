@@ -14,7 +14,7 @@ from std_msgs.msg import Header
 from geometry_msgs.msg import PoseStamped
 from trapezoid.srv import *
 from trapezoid.msg import *
-from basic_move/Move.msg import *
+from Move.msg import Move
 
 class Trapezoid:
     def __init__(self, serial_port, baudrate):
