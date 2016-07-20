@@ -50,7 +50,7 @@ class Trapezoid:
 
         # subscribers
         rospy.Subscriber('/trapezoid/setpoint_pose', PoseStamped, self.handle_turret_pose)
-       # rospy.Subscriber('testp', Move, self.publish_pose)
+       rospy.Subscriber('testp', float32, self.publish_pose)
 
         # services
         rospy.Service('/trapezoid/shoot', Shoot, self.handle_shoot)
@@ -170,11 +170,11 @@ class Trapezoid:
         return True
 
     # -------- publishers --------
-    def publish_pose(self):
+    def publish_pose(self,data):
         # !!!!TODO: convert kalman angles to radians (rpy -> xyz)
         roll_send = 0
         pitch_send = 0
-        yaw_send = 3
+        yaw_send = data
         
 
         # convert roll, pitch, yaw to quaternion
