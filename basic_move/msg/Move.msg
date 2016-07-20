@@ -1,3 +1,3 @@
-float drive
-float strafe
-float rotate
+float32 drive
+float32 strafe
+float32 rotate
