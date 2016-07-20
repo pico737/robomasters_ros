@@ -1,0 +1,2 @@
+int8 js_big_rune_0_status
+int8 js_big_rune_1_status

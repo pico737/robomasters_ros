@@ -5,6 +5,7 @@
 
 import serial
 import time
+import threading
 
 # ros imports
 import rospy
@@ -12,6 +13,7 @@ import tf
 from std_msgs.msg import Header
 from geometry_msgs.msg import PoseStamped
 from trapezoid.srv import *
+from trapezoid.msg import *
 
 class Trapezoid:
     def __init__(self, serial_port, baudrate):
@@ -30,9 +32,8 @@ class Trapezoid:
         self.friction_motor_pwm = 0
 
         # Data to be rx from Arduino
-        self.kalAngleX = 0.0
-        self.kalAngleY = 0.0
-        self.kalAngleZ = 0.0
+        self.js_big_rune_0_status = 0
+        self.js_big_rune_1_status = 0
 
         # Constant to get more decimal places of float data from Arduino
         # Set equal to floats
@@ -43,6 +44,8 @@ class Trapezoid:
         # ---------------- setup ros ----------------
         # publishers
         self.pub_pose = rospy.Publisher('/trapezoid/pose', PoseStamped, queue_size=10)
+
+        self.pub_robot_info = rospy.Publisher('/trapezoid/robot_info', RobotInfo, queue_size=10)
 
         # subscribers
         rospy.Subscriber('/trapezoid/setpoint_pose', PoseStamped, self.handle_turret_pose)
@@ -56,24 +59,42 @@ class Trapezoid:
         # ---------------- setup serial port ----------------
         self.arduinoData = serial.Serial(serial_port, baudrate, timeout=1)
 
-	# reset the arduino on connect
-	self.arduinoData.setDTR(True)
-	time.sleep(1)
-	self.arduinoData.setDTR(False)
+        # ---------------- start new thread for serial rx ----------------
+        arduino_rx_thread = threading.Thread(target=self.serial_rx_process)
+        arduino_rx_thread.start()
+
+        # reset the arduino on connect
+        self.arduinoData.setDTR(True)
+        time.sleep(1)
+        self.arduinoData.setDTR(False)
 
         rate = rospy.Rate(10) # 10hz
         while not rospy.is_shutdown():
             # (1) transmit to arduino
             self.arduinoTX()
-            
-            # (2) receive from arduino (disabled for now)
-            #if(self.arduinoData.inWaiting() > 0):
-            #    self.arduinoRX()
 
             # (3) publish kalman pose
             self.publish_pose()
+
+            # (4) publish robot info
+            self.publish_robot_info();
+
             rate.sleep()
 
+    # receive information from arduino (runs in a seperate thread)
+    def serial_rx_process(self):
+        while not rospy.is_shutdown():
+            rx_sof = self.arduinoData.read(1)
+            if len(rx_sof) == 1 and ord(rx_sof) == 0xAA:
+                rx_data = self.arduinoData.read(31)
+
+                # change string representation of rx data to int
+                for j in range(len(rx_data)):
+                    self.rx[j+1] = ord(rx_data[j]) # +1 offset for header
+                self.rx[0] = 0xAA # set the header
+
+                self.js_big_rune_0_status = self.rx[2]
+                self.js_big_rune_1_status = self.rx[3]
 
     # Send information to arduino
     def arduinoTX(self):
@@ -93,26 +114,26 @@ class Trapezoid:
         self.arduinoData.write(bytearray(self.tx))
         
 
-    # receive information from arduino
-    def arduinoRX(self):
-        myData = self.arduinoData.read(16)
+    # # receive information from arduino
+    # def arduinoRX(self):
+    #     myData = self.arduinoData.read(16)
 
-        # change string representation or rx data to int
-        for j in range(len(myData)):
-            rx[j] = ord(myData[j])
+    #     # change string representation or rx data to int
+    #     for j in range(len(myData)):
+    #         rx[j] = ord(myData[j])
             
-        self.kalAngleX = (( (rx[2] << 8)) | (rx[3] & 255))
-        self.kalAngleY = (( (rx[4] << 8)) | (rx[5] & 255))
-        self.kalAngleZ = (( (rx[6] << 8)) | (rx[7] & 255))
+    #     self.kalAngleX = (( (rx[2] << 8)) | (rx[3] & 255))
+    #     self.kalAngleY = (( (rx[4] << 8)) | (rx[5] & 255))
+    #     self.kalAngleZ = (( (rx[6] << 8)) | (rx[7] & 255))
 
-        # to get correct negative representation of data in Python
-        self.kalAngleX = twosComp(16, self.kalAngleX)
-        self.kalAngleY = twosComp(16, self.kalAngleY)
-        self.kalAngleZ = twosComp(16, self.kalAngleZ)
+    #     # to get correct negative representation of data in Python
+    #     self.kalAngleX = twosComp(16, self.kalAngleX)
+    #     self.kalAngleY = twosComp(16, self.kalAngleY)
+    #     self.kalAngleZ = twosComp(16, self.kalAngleZ)
         
-        self.kalAngleX = self.kalAngleX / self.kalConstX
-        self.kalAngleY = self.kalAngleY / self.kalConstY
-        self.kalAngleZ = self.kalAngleZ / self.kalConstZ
+    #     self.kalAngleX = self.kalAngleX / self.kalConstX
+    #     self.kalAngleY = self.kalAngleY / self.kalConstY
+    #     self.kalAngleZ = self.kalAngleZ / self.kalConstZ
 
 
     # -------- subscriber handlers --------
@@ -164,6 +185,12 @@ class Trapezoid:
         pose_send.pose.orientation.w = quaternion_send[3]
 
         self.pub_pose.publish(pose_send)
+
+    def publish_robot_info(self):
+        robot_info_send = RobotInfo()
+        robot_info_send.js_big_rune_0_status = self.js_big_rune_0_status
+        robot_info_send.js_big_rune_1_status = self.js_big_rune_1_status
+        self.pub_robot_info.publish(robot_info_send)
 
     # -------- "private" functions --------
     # Change negative numbers to
