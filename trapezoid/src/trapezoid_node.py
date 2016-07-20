@@ -170,9 +170,10 @@ class Trapezoid:
     # -------- publishers --------
     def publish_pose(self):
         # !!!!TODO: convert kalman angles to radians (rpy -> xyz)
-        roll_send = 0
-        pitch_send = 0
-        yaw_send = 0
+        roll_send = float(raw_input("roll"))
+        pitch_send = float(raw_input("pitch))
+        yaw_send = float(raw_input("yaw"))
+        
 
         # convert roll, pitch, yaw to quaternion
         quaternion_send = tf.transformations.quaternion_from_euler(roll_send, pitch_send, yaw_send)
@@ -185,6 +186,7 @@ class Trapezoid:
         pose_send.pose.orientation.w = quaternion_send[3]
 
         self.pub_pose.publish(pose_send)
+        
 
     def publish_robot_info(self):
         robot_info_send = RobotInfo()
@@ -202,6 +204,7 @@ class Trapezoid:
             return -(( 1<<bits ) + value)
         else:
             return value
+     
 
 if __name__ == '__main__':
     try:
