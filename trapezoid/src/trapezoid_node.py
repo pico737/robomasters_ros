@@ -13,7 +13,7 @@ import tf
 from std_msgs.msg import Header
 from geometry_msgs.msg import PoseStamped
 from trapezoid.srv import *
-#from trapezoid.msg import *
+from trapezoid.msg import *
 from Move.msg import *
 
 class Trapezoid:
