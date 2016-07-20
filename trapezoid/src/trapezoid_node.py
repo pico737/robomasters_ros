@@ -170,11 +170,11 @@ class Trapezoid:
         return True
 
     # -------- publishers --------
-    def publish_pose(self):
+    def publish_pose(self,data):
         # !!!!TODO: convert kalman angles to radians (rpy -> xyz)
-        roll_send = float(raw_input("roll"))
-        pitch_send = float(raw_input("pitch))
-        yaw_send = float(raw_input("yaw"))
+        roll_send = data.drive
+        pitch_send = data.strafe
+        yaw_send = data.rotate
         
 
         # convert roll, pitch, yaw to quaternion
