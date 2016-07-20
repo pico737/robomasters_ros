@@ -1,16 +1,16 @@
  #!/usr/bin/env python
  
   import rospy
- import Move
+
   
   
 def talker():
-    pub = rospy.Publisher('testp', Move , queue_size=10)
+    pub = rospy.Publisher('testp', float32 , queue_size=10)
     rospy.init_node('quicktest', anonymous=True)
     rate = rospy.Rate(10) # 10hz
     while not rospy.is_shutdown():
         
-        pub.publish(float(raw_input("roll")) , float(raw_input("pitch")) , float(raw_input("yaw")))
+        pub.publish(float(raw_input("yaw")) )
         rate.sleep()
 
 if __name__ == '__main__':
