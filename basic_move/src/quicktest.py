@@ -4,7 +4,7 @@
   from std_msgs.msg import Float32
   
   
- def talker():
+   def talker():
     pub = rospy.Publisher('testp', float32 , queue_size=10)
     rospy.init_node('quicktest', anonymous=True)
     rate = rospy.Rate(10) # 10hz
