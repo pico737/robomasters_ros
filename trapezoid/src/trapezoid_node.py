@@ -32,6 +32,9 @@ class Trapezoid:
         self.yaw_req = 0
         self.feeder_motor_pwm = 0
         self.friction_motor_pwm = 0
+        self.drive_req = 0
+        self.strafe_req = 0
+        self.rotate_req = 0
 
         # Data to be rx from Arduino
         self.js_big_rune_0_status = 0
@@ -114,8 +117,14 @@ class Trapezoid:
         self.tx[9] = self.feeder_motor_pwm & 255
         self.tx[10] = (self.friction_motor_pwm >> 8) & 255
         self.tx[11] = self.friction_motor_pwm & 255
+        self.tx[12] = (self.drive_req >> 8) & 255
+        self.tx[13] = self.drive_req & 255
+        self.tx[14] = (self.strafe_req >> 8) & 255
+        self.tx[15] = self.strafe_req & 255
+        self.tx[16] = (self.rotate_req >> 8) & 255
+        self.tx[17] = self.rotate_req & 255
         self.arduinoData.write(bytearray(self.tx))
-        
+
 
     # # receive information from arduino
     # def arduinoRX(self):
@@ -124,7 +133,7 @@ class Trapezoid:
     #     # change string representation or rx data to int
     #     for j in range(len(myData)):
     #         rx[j] = ord(myData[j])
-            
+
     #     self.kalAngleX = (( (rx[2] << 8)) | (rx[3] & 255))
     #     self.kalAngleY = (( (rx[4] << 8)) | (rx[5] & 255))
     #     self.kalAngleZ = (( (rx[6] << 8)) | (rx[7] & 255))
@@ -133,7 +142,7 @@ class Trapezoid:
     #     self.kalAngleX = twosComp(16, self.kalAngleX)
     #     self.kalAngleY = twosComp(16, self.kalAngleY)
     #     self.kalAngleZ = twosComp(16, self.kalAngleZ)
-        
+
     #     self.kalAngleX = self.kalAngleX / self.kalConstX
     #     self.kalAngleY = self.kalAngleY / self.kalConstY
     #     self.kalAngleZ = self.kalAngleZ / self.kalConstZ
@@ -162,11 +171,11 @@ class Trapezoid:
         print req.pwm_speed
         print req.duration
         # TODO: actually shoot stuff
-        self.feeder_motor_pwm = req.pwm_speed 
-        self.feeder_motor_state = 1 
-        self.friction_motor_state = 1 
-        time.sleep(req.duration) 
-        self.feeder_motor_state = 0 
+        self.feeder_motor_pwm = req.pwm_speed
+        self.feeder_motor_state = 1
+        self.friction_motor_state = 1
+        time.sleep(req.duration)
+        self.feeder_motor_state = 0
         self.friction_motor_state = 0
         return True
 
@@ -176,7 +185,7 @@ class Trapezoid:
         roll_send = 0
         pitch_send = 0
         yaw_send = data
-        
+
 
         # convert roll, pitch, yaw to quaternion
         quaternion_send = tf.transformations.quaternion_from_euler(roll_send, pitch_send, yaw_send)
@@ -189,7 +198,7 @@ class Trapezoid:
         pose_send.pose.orientation.w = quaternion_send[3]
 
         self.pub_pose.publish(pose_send)
-        
+
 
     def publish_robot_info(self):
         robot_info_send = RobotInfo()
@@ -207,7 +216,7 @@ class Trapezoid:
             return -(( 1<<bits ) + value)
         else:
             return value
-     
+
 
 if __name__ == '__main__':
     try:
