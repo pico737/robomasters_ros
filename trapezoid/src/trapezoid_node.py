@@ -11,6 +11,7 @@ import threading
 import rospy
 import tf
 from std_msgs.msg import Header
+from std_msgs.msg import Float32
 from geometry_msgs.msg import PoseStamped
 from trapezoid.srv import *
 from trapezoid.msg import *
