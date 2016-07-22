@@ -11,11 +11,11 @@ import threading
 import rospy
 import tf
 from std_msgs.msg import Header
-from std_msgs.msg import Float32
+from geometry_msgs.msg import Point
 from geometry_msgs.msg import PoseStamped
 from trapezoid.srv import *
 from trapezoid.msg import *
-#from Move.msg import Move
+
 
 class Trapezoid:
     def __init__(self, serial_port, baudrate):
@@ -32,9 +32,9 @@ class Trapezoid:
         self.yaw_req = 0
         self.feeder_motor_pwm = 0
         self.friction_motor_pwm = 0
-        self.drive_req = 0
-        self.strafe_req = 0
-        self.rotate_req = 0
+        #self.drive_req = 0
+        #self.strafe_req = 0
+        #self.rotate_req = 0
 
         # Data to be rx from Arduino
         self.js_big_rune_0_status = 0
@@ -54,7 +54,7 @@ class Trapezoid:
 
         # subscribers
         rospy.Subscriber('/trapezoid/setpoint_pose', PoseStamped, self.handle_turret_pose)
-        rospy.Subscriber('testp', Float32, self.publish_pose)
+        rospy.Subscriber('qtest', Point, self.publish_pose)
 
         # services
         rospy.Service('/trapezoid/shoot', Shoot, self.handle_shoot)
@@ -117,12 +117,12 @@ class Trapezoid:
         self.tx[9] = self.feeder_motor_pwm & 255
         self.tx[10] = (self.friction_motor_pwm >> 8) & 255
         self.tx[11] = self.friction_motor_pwm & 255
-        self.tx[12] = (self.drive_req >> 8) & 255
-        self.tx[13] = self.drive_req & 255
-        self.tx[14] = (self.strafe_req >> 8) & 255
-        self.tx[15] = self.strafe_req & 255
-        self.tx[16] = (self.rotate_req >> 8) & 255
-        self.tx[17] = self.rotate_req & 255
+        #self.tx[12] = (self.drive_req >> 8) & 255
+        #self.tx[13] = self.drive_req & 255
+        #self.tx[14] = (self.strafe_req >> 8) & 255
+        #self.tx[15] = self.strafe_req & 255
+        #self.tx[16] = (self.rotate_req >> 8) & 255
+        #self.tx[17] = self.rotate_req & 255
         self.arduinoData.write(bytearray(self.tx))
 
 
@@ -160,11 +160,17 @@ class Trapezoid:
         roll = euler[0]
         pitch = euler[1]
         yaw = euler[2]
+	print(roll)
+	print(pitch)
+	print(yaw)
 
         # convert received radians to int commands
         self.pitch_req = int(pitch * 1000)
         self.yaw_req = int(yaw * 1000)
-
+   #def handle_chassis(self,data)
+	#self.drive_req = data.x
+	#self.strafe_req = data.y
+        #self.rotate_req = data.z
     # -------- service handlers --------
     def handle_shoot(self, req):
         print "shoot service called"
@@ -180,11 +186,11 @@ class Trapezoid:
         return True
 
     # -------- publishers --------
-    def publish_pose(self,data):
+    def publish_pose(self):
         # !!!!TODO: convert kalman angles to radians (rpy -> xyz)
         roll_send = 0
         pitch_send = 0
-        yaw_send = data
+        yaw_send = 0
 
 
         # convert roll, pitch, yaw to quaternion

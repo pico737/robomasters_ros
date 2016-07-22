@@ -9,11 +9,13 @@ import rospy
 import tf
 from std_msgs.msg import Header
 from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import Point
 from trapezoid.srv import *
 
 class TrapezoidClient:
     def __init__(self):
         pub = rospy.Publisher('/trapezoid/setpoint_pose', PoseStamped, queue_size=10)
+	#publ = rospy.Publisher('qtest', Point, queue_size = 10)
         rospy.init_node('trapezoid_client', anonymous=True)
 
         # wait for service
@@ -28,10 +30,16 @@ class TrapezoidClient:
         rate = rospy.Rate(10) # 10hz
 
         while not rospy.is_shutdown():
-            # convert roll, pitch, yaw to quaternion
+	    #publ.publish(float(raw_input("drive")) , float(raw_input("strafe") , float(raw_input("rot")) )
+	    #drive_req = float(raw_input("DRIVE"))
+            #strafe_req = float(raw_input("strafe"))
+            #rotate_req = float(raw_input("rotate"))
+	    #publ.publish(drive_req,strafe_req,rotate_req)
+            
+            #convert roll, pitch, yaw to quaternion
             roll_req = 0
-            pitch_req = 1.57
-            yaw_req = 1.0
+            pitch_req = float(raw_input("pitch"))
+            yaw_req = float(raw_input("yaw"))
             quaternion_req = tf.transformations.quaternion_from_euler(roll_req, pitch_req, yaw_req)
 
             pose_req = PoseStamped()
