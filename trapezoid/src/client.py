@@ -2,7 +2,7 @@
 
 import time
 import math
-import subprocess
+import threading
 
 # ros imports
 import rospy
@@ -14,8 +14,17 @@ from trapezoid.srv import *
 
 class TrapezoidClient:
     def __init__(self):
-        pub = rospy.Publisher('/trapezoid/setpoint_pose', PoseStamped, queue_size=10)
-	#publ = rospy.Publisher('qtest', Point, queue_size = 10)
+        # class fields
+        self.roll_req = 0
+        self.pitch_req = 0
+        self.yaw_req = 0
+        self.drive_req = 0
+        self.strafe_req = 0
+        self.rotate_req = 0
+
+        # setup ros publishers and subscribers
+        self.setpoint_pose_pub = rospy.Publisher('/trapezoid/setpoint_pose', PoseStamped, queue_size=10)
+        self.setpoint_chassis_pub = rospy.Publisher('/trapezoid/setpoint_chassis', Point, queue_size=10)
         rospy.init_node('trapezoid_client', anonymous=True)
 
         # wait for service
@@ -27,20 +36,50 @@ class TrapezoidClient:
         time.sleep(3)
         self.call_shoot_service()
 
-        rate = rospy.Rate(10) # 10hz
+        # start a new thread for publishers
+        pub_thread = threading.Thread(target=self.pub_process)
+        pub_thread.start()
+
+        print "type in command letter followed by value, or exit to quit"
+        print "turret commands    tr: roll, tp: pitch, ty: yaw"
+        print "chassis commands   cd: drive, cs: strafe, cr: rotate"
+        print "ex: tr1.43"
 
         while not rospy.is_shutdown():
-	    #publ.publish(float(raw_input("drive")) , float(raw_input("strafe") , float(raw_input("rot")) )
-	    #drive_req = float(raw_input("DRIVE"))
-            #strafe_req = float(raw_input("strafe"))
-            #rotate_req = float(raw_input("rotate"))
-	    #publ.publish(drive_req,strafe_req,rotate_req)
-            
+            cmd = raw_input("-->")
+            if cmd == "exit":
+                break
+            else:
+                value = float(cmd[2:])
+                if cmd[0] == "t":
+                    if cmd[1] == "r":
+                        self.roll_req = value
+                    elif cmd[1] == "p":
+                        self.pitch_req = value
+                    elif cmd[1] == "y":
+                        self.yaw_req = value
+                    else:
+                        print "command error"
+                elif cmd[0] == "c":
+                    if cmd[1] == "d":
+                        self.drive_req = value
+                    elif cmd[1] == "s":
+                        self.strafe_req = value
+                    elif cmd[1] == "r":
+                        self.rotate_req = value
+                    else:
+                        print "command error"
+                else:
+                    print "command error"
+        print "ros shutdown"
+        rospy.signal_shutdown("user shutdown command")
+
+    def pub_process(self):
+        rate = rospy.Rate(10) # 10hz
+        while not rospy.is_shutdown():
+            # (1) publish turret commands
             #convert roll, pitch, yaw to quaternion
-            roll_req = 0
-            pitch_req = float(raw_input("pitch"))
-            yaw_req = float(raw_input("yaw"))
-            quaternion_req = tf.transformations.quaternion_from_euler(roll_req, pitch_req, yaw_req)
+            quaternion_req = tf.transformations.quaternion_from_euler(self.roll_req, self.pitch_req, self.yaw_req)
 
             pose_req = PoseStamped()
             pose_req.header = Header()
@@ -48,8 +87,15 @@ class TrapezoidClient:
             pose_req.pose.orientation.y = quaternion_req[1]
             pose_req.pose.orientation.z = quaternion_req[2]
             pose_req.pose.orientation.w = quaternion_req[3]
-            #self.call_shoot_service()
-            pub.publish(pose_req)
+            self.setpoint_pose_pub.publish(pose_req)
+
+            # (2) publish chassis commands
+            chassis_req = Point()
+            chassis_req.x = self.drive_req
+            chassis_req.y = self.strafe_req
+            chassis_req.z = self.rotate_req
+            self.setpoint_chassis_pub.publish(chassis_req)
+
             rate.sleep()
 
     def call_shoot_service(self):
