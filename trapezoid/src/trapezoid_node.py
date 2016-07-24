@@ -24,7 +24,7 @@ class Trapezoid:
         self.rx = [0] * 32
 
         # Data to be tx to Arduino
-        self.header = 0
+        self.header = 0xF9
         self.feeder_motor_state = 0
         self.friction_motor_state = 0
         self.pitch_req = 0
@@ -63,14 +63,14 @@ class Trapezoid:
         # ---------------- setup serial port ----------------
         self.arduinoData = serial.Serial(serial_port, baudrate, timeout=1)
 
-        # ---------------- start new thread for serial rx ----------------
-        arduino_rx_thread = threading.Thread(target=self.serial_rx_process)
-        arduino_rx_thread.start()
-
         # reset the arduino on connect
         self.arduinoData.setDTR(True)
         time.sleep(1)
         self.arduinoData.setDTR(False)
+
+        # ---------------- start new thread for serial rx ----------------
+        arduino_rx_thread = threading.Thread(target=self.serial_rx_process)
+        arduino_rx_thread.start()
 
         rate = rospy.Rate(10) # 10hz
         while not rospy.is_shutdown():
@@ -87,6 +87,7 @@ class Trapezoid:
 
     # receive information from arduino (runs in a seperate thread)
     def serial_rx_process(self):
+        print "serial rx hajimaruyooo"
         while not rospy.is_shutdown():
             rx_sof = self.arduinoData.read(1)
             if len(rx_sof) == 1 and ord(rx_sof) == 0xAA:
@@ -99,11 +100,14 @@ class Trapezoid:
 
                 self.js_big_rune_0_status = self.rx[2]
                 self.js_big_rune_1_status = self.rx[3]
+        print "serial rx shutdown"
 
     # Send information to arduino
     def arduinoTX(self):
-        self.tx[0] = (self.header >> 8) & 255
-        self.tx[1] = self.header & 255
+        # self.tx[0] = (self.header >> 8) & 255
+        # self.tx[1] = self.header & 255
+        self.tx[0] = 0xF9
+        self.tx[1] = 0x00
         self.tx[2] = self.feeder_motor_state
         self.tx[3] = self.friction_motor_state
         self.tx[4] = (self.pitch_req >> 8) & 255
