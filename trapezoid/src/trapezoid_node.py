@@ -53,6 +53,7 @@ class Trapezoid:
         # subscribers
         rospy.Subscriber('/trapezoid/setpoint_pose', PoseStamped, self.handle_setpoint_pose)
         rospy.Subscriber('/trapezoid/setpoint_chassis', Point, self.handle_setpoint_chassis)
+        rospy.Subscriber('/trapezoid/setpoint_shoot', Shooting, self.handle_setpoint_shoot)
 
         # services
         rospy.Service('/trapezoid/shoot', Shoot, self.handle_shoot)
@@ -169,7 +170,12 @@ class Trapezoid:
         self.strafe_req = int(data.y)
         self.rotate_req = int(data.z)
 
+    def handle_setpoint_shoot(self, data):
+    	self.feeder_motor_state = data.feeder_motor_state
+    	self.friction_motor_state = data.friction_motor_state
+
     # -------- service handlers --------
+    # handle shoot service deprecated, use the /trapezoid/setpoint_shoot topic
     def handle_shoot(self, req):
         print "shoot service called"
         print req.pwm_speed

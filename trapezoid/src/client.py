@@ -11,6 +11,7 @@ from std_msgs.msg import Header
 from geometry_msgs.msg import PoseStamped
 from geometry_msgs.msg import Point
 from trapezoid.srv import *
+from trapezoid.msg import *
 
 class TrapezoidClient:
     def __init__(self):
@@ -21,20 +22,13 @@ class TrapezoidClient:
         self.drive_req = 0
         self.strafe_req = 0
         self.rotate_req = 0
+        self.feeder_req = 0
 
         # setup ros publishers and subscribers
         self.setpoint_pose_pub = rospy.Publisher('/trapezoid/setpoint_pose', PoseStamped, queue_size=10)
         self.setpoint_chassis_pub = rospy.Publisher('/trapezoid/setpoint_chassis', Point, queue_size=10)
+        self.setpoint_shoot_pub = rospy.Publisher('/trapezoid/setpoint_shoot', Shooting, queue_size=10)
         rospy.init_node('trapezoid_client', anonymous=True)
-
-        # wait for service
-        print "waiting for /trapezoid/shoot service..."
-        rospy.wait_for_service('/trapezoid/shoot')
-        print "ok"
-
-        # ex. call shoot service
-        time.sleep(3)
-        self.call_shoot_service()
 
         # start a new thread for publishers
         pub_thread = threading.Thread(target=self.pub_process)
@@ -43,6 +37,7 @@ class TrapezoidClient:
         print "type in command letter followed by value, or exit to quit"
         print "turret commands    tr: roll, tp: pitch, ty: yaw"
         print "chassis commands   cd: drive, cs: strafe, cr: rotate"
+        print "shooting commands  sf: feeder motor (1 or 0)"
         print "ex: tr1.43"
 
         while not rospy.is_shutdown():
@@ -69,6 +64,9 @@ class TrapezoidClient:
                         self.rotate_req = value
                     else:
                         print "command error"
+                elif cmd[0] == "s":
+                    if cmd[1] == "f":
+                        self.feeder_req = value
                 else:
                     print "command error"
         print "ros shutdown"
@@ -96,8 +94,15 @@ class TrapezoidClient:
             chassis_req.z = self.rotate_req
             self.setpoint_chassis_pub.publish(chassis_req)
 
+            # (3) publish shooting commands
+            shoot_req = Shooting()
+            shoot_req.feeder_motor_state = self.feeder_req
+            shoot_req.friction_motor_state = 0
+            self.setpoint_shoot_pub.publish(shoot_req)
+
             rate.sleep()
 
+    # shoot service is deprecated, don't call this function
     def call_shoot_service(self):
         try:
             shoot = rospy.ServiceProxy('/trapezoid/shoot', Shoot)

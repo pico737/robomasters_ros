@@ -9,6 +9,7 @@ import tf
 from std_msgs.msg import Header
 from geometry_msgs.msg import PoseStamped
 from trapezoid.srv import *
+from trapezoid.msg import *
 from aimbot.msg import *
 
 class AimBot:
@@ -25,10 +26,12 @@ class AimBot:
         self.setpoint_pitch = 0  # the pitch setpoint in radians +up, -down
         self.target_locked = False  # true when enemy lock is valid
         self.detected_enemy_timeout = 0  # timeout counter, timed out when 0
+        self.shoot = 0 # true to shoot
 
         # ---------------- setup ros ----------------
         # publishers
         self.pub_output_pose = rospy.Publisher('/trapezoid/setpoint_pose', PoseStamped, queue_size=10)
+        self.pub_setpoint_shoot = rospy.Publisher('/trapezoid/setpoint_shoot', Shooting, queue_size=10)
 
         # subscribers
         rospy.Subscriber('/aimbot/detected_enemy', DetectedRobot, self.handle_detected_enemy)
@@ -38,21 +41,24 @@ class AimBot:
 
         rate = rospy.Rate(10)
         while not rospy.is_shutdown():
-            self.publish_output_pose()
+            self.publish_setpoint_pose()
+            self.publish_setpoint_shoot()
 
             # timeout counter
             if (self.detected_enemy_timeout == 0):
                 self.target_locked = False
-                # return to center when timed out
+                # return to center and stop shooting when timed out
                 self.setpoint_yaw = 0
                 self.setpoint_pitch = 0
+                self.shoot = 0
             else:
                 self.detected_enemy_timeout -= 1
 
             rate.sleep()
 
     def handle_detected_enemy(self, data):
-        self.detected_enemy_timeout = self.timeout_t
+        self.detected_enemy_timeout = self.timeout_t # reset timeout timer
+        self.shoot = 1 # shoot if we see enemy robot
         # print data.distance
         # print data.y_rotation
         # print data.z_rotation
@@ -75,7 +81,7 @@ class AimBot:
         self.setpoint_yaw = new_yaw
         self.setpoint_pitch = new_pitch
 
-    def publish_output_pose(self):
+    def publish_setpoint_pose(self):
         roll_send = 0
         pitch_send = self.setpoint_pitch
         yaw_send = self.setpoint_yaw
@@ -91,6 +97,12 @@ class AimBot:
         pose_send.pose.orientation.w = quaternion_send[3]
 
         self.pub_output_pose.publish(pose_send)
+
+    def publish_setpoint_shoot(self):
+        shoot_req = Shooting()
+        shoot_req.feeder_motor_state = self.shoot
+        shoot_req.friction_motor_state = 0 # we don't care about this for now
+        self.pub_setpoint_shoot.publish(shoot_req)
 
 if __name__ == '__main__':
     try:
