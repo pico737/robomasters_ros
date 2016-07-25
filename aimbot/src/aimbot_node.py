@@ -18,6 +18,7 @@ class AimBot:
         self.min_yaw = -math.pi / 2
         self.max_pitch = math.pi / 4
         self.min_pitch = -math.pi / 4
+        self.timeout_t = 10
 
         # fields
         self.setpoint_yaw = 0    # the yaw setpoint in radians +right, -left
@@ -42,14 +43,16 @@ class AimBot:
             # timeout counter
             if (self.detected_enemy_timeout == 0):
                 self.target_locked = False
-                # TODO: return to center when timed out?
+                # return to center when timed out
+                self.setpoint_yaw = 0
+                self.setpoint_pitch = 0
             else:
                 self.detected_enemy_timeout -= 1
 
             rate.sleep()
 
     def handle_detected_enemy(self, data):
-        self.detected_enemy_timeout = 10
+        self.detected_enemy_timeout = self.timeout_t
         # print data.distance
         # print data.y_rotation
         # print data.z_rotation

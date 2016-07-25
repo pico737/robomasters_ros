@@ -50,7 +50,7 @@ class AimbotClient:
                 elif cmd[0] == "t":
                     if cmd[1] == "p":
                         self.pause = 1
-                        sleep(value)
+                        time.sleep(value)
                         self.pause = 0
                     else:
                         print "command error"
