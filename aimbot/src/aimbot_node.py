@@ -27,7 +27,7 @@ class AimBot:
 
         # ---------------- setup ros ----------------
         # publishers
-        self.pub_output_pose = rospy.Publisher('/aimbot/output_pose', PoseStamed, queue_size=10)
+        self.pub_output_pose = rospy.Publisher('/trapezoid/setpoint_pose', PoseStamped, queue_size=10)
 
         # subscribers
         rospy.Subscriber('/aimbot/detected_enemy', DetectedRobot, self.handle_detected_enemy)
@@ -37,7 +37,7 @@ class AimBot:
 
         rate = rospy.Rate(10)
         while not rospy.is_shutdown():
-            publish_output_pose()
+            self.publish_output_pose()
 
             # timeout counter
             if (self.detected_enemy_timeout == 0):
@@ -80,7 +80,7 @@ class AimBot:
         # convert roll, pitch, yaw to quaternion
         quaternion_send = tf.transformations.quaternion_from_euler(roll_send, pitch_send, yaw_send)
 
-        pose_send = PoseStamed()
+        pose_send = PoseStamped()
         pose_send.header = Header()
         pose_send.pose.orientation.x = quaternion_send[0]
         pose_send.pose.orientation.y = quaternion_send[1]
