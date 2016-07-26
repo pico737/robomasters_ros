@@ -1,53 +1,49 @@
 #!/usr/bin/env python
 
+import time
 import math
+import threading
+import subprocess
 
 # ros imports
 import rospy
 import tf
-from aimbot.msg import *
+from std_msgs.msg import Header
+from geometry_msgs.msg import PoseStamped
+from aimbot.msg import DetectedRobot
 
-# For this code to work, supply focal length and distance
-# 
-# Output angle in radian
-# horangle outputs negative radians to rotate left
-#          outputs positive radians to rotate right
+class RMCV:
+    def __init__(self, enemy_color):
+        # class fields
 
-# verangle outputs negative radians to move up
-#          outputs positive radians to move down
-
-# FOCAL_LENGTH_IPHONE = 28.0
-
-class RmCv:
-    def __init__(self, focal_length):
-        self.focal_length = focal_length
-
-        # ---------------- setup ros ----------------
-        # publishers
-        self.pub_detected_enemy = rospy.Publisher('/rm_cv/pub_detected_enemy', DetectedRobot, queue_size=10)
-
-        # init the node
+        # setup ros publishers and subscribers
+        self.dr_pub = rospy.Publisher('/aimbot/detected_enemy', DetectedRobot, queue_size=10)
         rospy.init_node('rm_cv', anonymous=True)
 
-        rospy.spin()
+        # call the cv program
+        cv_process = subprocess.Popen(["rm_darknet_yolo"], shell=True, stdout=subprocess.PIPE)
 
-    def verangle(origin, actual, distance):
-        yd = actual - origin
-        yd = yd / self.focal_length
-        return math.atan(yd/distance)
+        #while not rospy.is_shutdown():
+        while cv_process.poll() is None:
+            line = cv_process.stdout.readline()
+            if line == "---":
+                color = cv_process.stdout.readline()
+                distance = float(cv_process.stdout.readline())
+                y_rotation = float(cv_process.stdout.readline())
+                z_rotation = float(cv_process.stdout.readline())
+                if (color == enemy_color): # only shoot at enemy robots!
+                    # publish the detected robot
+                    dr_req = DetectedRobot()
+                    dr_req.distance = distance
+                    dr_req.y_rotation = self.dr_y_rotation
+                    dr_req.z_rotation = self.dr_z_rotation
+                    self.dr_pub.publish(dr_req)
 
-    def horangle(origin, actual, distance):
-        xd = actual - origin #horizontal distance
-        xd = xd / self.focal_length
-        return math.asin(xd/distance)
+        print "ros shutdown"
+        rospy.signal_shutdown("user shutdown command")
 
 if __name__ == '__main__':
     try:
-        #Trapezoid('/dev/ttyACM0', 115200)
-        RmCv(28.0)
+        RMCV('red')
     except rospy.ROSInterruptException:
         pass
-
-# if __name__=='__main__':
-#     rad = verangle(1160, 1771, 100.0)
-#     print math.degrees(rad)
