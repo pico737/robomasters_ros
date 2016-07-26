@@ -1,0 +1,28 @@
+RoboMasters cv stdout output specifications
+
+Units are in meters and radians. 
+
+---\n
+color:<blue|red>\n
+distance:<64-bit float>\n
+y_rotation:<64-bit float>\n
+z_rotation:<64-bit float>\n
+
+example output
+
+$ ./darknet yolo demo
+---
+color:blue
+distance:1.2345
+y_rotation:1.2345
+z_rotation:-1.2345
+---
+color:red
+distance:1.2345
+y_rotation:1.2345
+z_rotation:-1.2345
+---
+color:blue
+distance:1.2345
+y_rotation:1.2345
+z_rotation:-1.2345
