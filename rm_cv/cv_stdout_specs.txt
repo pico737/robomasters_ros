@@ -2,16 +2,26 @@ RoboMasters cv stdout output specifications
 
 Units are in meters and radians. 
 
+<<<<<<< HEAD
 ---\n
+=======
+>>>>>>> 897b74b2a246dd5e68f65a528545c13085eeda53
 color:<blue|red>\n
 distance:<64-bit float>\n
 y_rotation:<64-bit float>\n
 z_rotation:<64-bit float>\n
+<<<<<<< HEAD
+=======
+---\n
+>>>>>>> 897b74b2a246dd5e68f65a528545c13085eeda53
 
 example output
 
 $ ./darknet yolo demo
+<<<<<<< HEAD
 ---
+=======
+>>>>>>> 897b74b2a246dd5e68f65a528545c13085eeda53
 color:blue
 distance:1.2345
 y_rotation:1.2345
@@ -26,3 +36,7 @@ color:blue
 distance:1.2345
 y_rotation:1.2345
 z_rotation:-1.2345
+<<<<<<< HEAD
+=======
+---
+>>>>>>> 897b74b2a246dd5e68f65a528545c13085eeda53
