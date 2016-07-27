@@ -1,0 +1,2 @@
+int8 feeder_motor_state
+int8 friction_motor_state

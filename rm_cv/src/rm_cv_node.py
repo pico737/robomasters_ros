@@ -1,53 +1,57 @@
 #!/usr/bin/env python
 
-import math
+import time
+import pexpect
+import sys
 
 # ros imports
 import rospy
 import tf
-from aimbot.msg import *
+from std_msgs.msg import Header
+from geometry_msgs.msg import PoseStamped
+from aimbot.msg import DetectedRobot
 
-# For this code to work, supply focal length and distance
-# 
-# Output angle in radian
-# horangle outputs negative radians to rotate left
-#          outputs positive radians to rotate right
+class RMCV:
+    def __init__(self, enemy_color):
+        # class fields
 
-# verangle outputs negative radians to move up
-#          outputs positive radians to move down
-
-# FOCAL_LENGTH_IPHONE = 28.0
-
-class RmCv:
-    def __init__(self, focal_length):
-        self.focal_length = focal_length
-
-        # ---------------- setup ros ----------------
-        # publishers
-        self.pub_detected_enemy = rospy.Publisher('/rm_cv/pub_detected_enemy', DetectedRobot, queue_size=10)
-
-        # init the node
+        # setup ros publishers and subscribers
+        self.dr_pub = rospy.Publisher('/aimbot/detected_enemy', DetectedRobot, queue_size=10)
         rospy.init_node('rm_cv', anonymous=True)
 
-        rospy.spin()
+        # call the cv program
+        cv_process = pexpect.spawn("/home/pico/catkin_ws/src/robomasters_ros/rm_cv/src/client.py")
 
-    def verangle(origin, actual, distance):
-        yd = actual - origin
-        yd = yd / self.focal_length
-        return math.atan(yd/distance)
-
-    def horangle(origin, actual, distance):
-        xd = actual - origin #horizontal distance
-        xd = xd / self.focal_length
-        return math.asin(xd/distance)
+        while not rospy.is_shutdown():
+            try:
+                cv_process.expect('\n')
+                line = cv_process.before.rstrip()
+                if line == "---":
+                    cv_process.expect('\n')
+                    color = cv_process.before.rstrip()
+                    cv_process.expect('\n')
+                    distance = float(cv_process.before.rstrip())
+                    cv_process.expect('\n')
+                    y_rotation = float(cv_process.before.rstrip())
+                    cv_process.expect('\n')
+                    z_rotation = float(cv_process.before.rstrip())
+                    if (color == enemy_color): # only shoot at enemy robots!
+                        # publish the detected robot
+                        dr_req = DetectedRobot()
+                        dr_req.distance = distance
+                        dr_req.y_rotation = y_rotation
+                        dr_req.z_rotation = z_rotation
+                        self.dr_pub.publish(dr_req)
+            except pexpect.EOF:
+                break
+        print "ros shutdown"
+        rospy.signal_shutdown("user shutdown command")
 
 if __name__ == '__main__':
     try:
-        #Trapezoid('/dev/ttyACM0', 115200)
-        RmCv(28.0)
+        if (len(sys.argv) == 2 and (sys.argv[1] == "red" or sys.argv[1] == "blue")):
+            RMCV(sys.argv[1])
+        else:
+            print "usage: rm_cv_node.py <enemy_color>"
     except rospy.ROSInterruptException:
         pass
-
-# if __name__=='__main__':
-#     rad = verangle(1160, 1771, 100.0)
-#     print math.degrees(rad)
