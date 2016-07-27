@@ -1,3 +1,4 @@
-uint16 drive
-uint16 strafe
-uint16 rotate
+uint16 dist
+uint16 angle
+uint16 speed
+bool rot
