@@ -101,6 +101,8 @@ class Trapezoid:
 
                 self.js_big_rune_0_status = self.rx[2]
                 self.js_big_rune_1_status = self.rx[3]
+
+                self.arduinoData.flushInput()
         print "serial rx shutdown"
 
     # Send information to arduino
