@@ -1,3 +1,6 @@
-float32 drive
-float32 strafe
-float32 rotate
+
+uint16 dist
+uint16 angle
+uint16 speed
+bool rot
+

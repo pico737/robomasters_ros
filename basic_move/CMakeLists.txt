@@ -129,16 +129,16 @@ catkin_package(
 # add_dependencies(basic_move ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-# add_executable(basic_move_node src/basic_move_node.cpp)
+
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(basic_move_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(basic_move_node
-#   ${catkin_LIBRARIES}
-# )
+#target_link_libraries(
+  # ${catkin_LIBRARIES}
+ #)
 
 #############
 ## Install ##

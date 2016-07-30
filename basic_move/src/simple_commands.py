@@ -4,29 +4,31 @@ import numpy as np
 import math
 import time
 from sensor_msgs.msg import LaserScan
-import Move
+from follow_self import*
+from basic_move.msg import Move
 
-dist = 3
-angle = 0
-speed = 3
-rot = false
+
+def listener():
+    rospy.init_node('simple_commands', anonymous=True)
+    rospy.Subscriber("/chassis_tomove", Move, easy)
+    rospy.spin()
 
 #dist and angle would be replaced by the properties of message
-pub = rospy.Publisher('/move_simple', Move, queue_size=100)
-def easy (dist,angle,speed,rot):
-	if(angle is 0 and speed not 0 and dist not 0):
-		straight_line(dist,speed)
-	elif(angle not 0 and speed not 0 and dist not 0):
-		if(rot): #rotate 
-			pub.publish(0,0,angle) #presumably it rotates in rad/sec
+pub = rospy.Publisher('/trapezoid/setpoint_chassis', Point, queue_size=100)
+def easy (data):
+	if(data.angle is 0 and data.speed !=0 and data.dist!= 0):
+		straight_line(data.dist,data.speed)
+	elif(data.angle != 0 and data.speed != 0 and data.dist != 0):
+		if(data.rot): #rotate 
+			pub.publish(0,0,data.angle) #presumably it rotates in rad/sec
 			time.sleep(1)
-			straight_line(dist,speed)
+			straight_line(data.dist,data.speed)
 		#this rot/strafe boolean won't be necessary when using lidar
 		else:#strafe
-			x = dist*math.cos(angle)
-			pub.publish(0,speed,0)
-			time.sleep(x/speed)
-			straight_line(dist,speed)
+			x = data.dist*math.cos(data.angle)
+			pub.publish(0,data.speed,0)
+			time.sleep(x/data.speed)
+			straight_line(data.dist,data.speed)
 	else:
 		pub.publish(0,0,0)
 			
