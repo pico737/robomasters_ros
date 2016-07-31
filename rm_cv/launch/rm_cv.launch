@@ -1,0 +1,5 @@
+<launch>
+	<node name="trapezoid_node" pkg="trapezoid" type="trapezoid_node.py" />
+	<node name="aimbot_node" pkg="aimbot" type="aimbot_node.py" />
+	<node name="rm_cv_node" pkg="rm_cv" type="rm_cv_node.py" />
+</launch>
