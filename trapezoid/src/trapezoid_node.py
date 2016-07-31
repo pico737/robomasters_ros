@@ -229,6 +229,6 @@ class Trapezoid:
 
 if __name__ == '__main__':
     try:
-        Trapezoid('/dev/ttyACM0', 115200)
+        Trapezoid('/dev/ttyACM0', 9600)
     except rospy.ROSInterruptException:
         pass
