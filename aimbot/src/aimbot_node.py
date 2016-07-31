@@ -20,6 +20,8 @@ class AimBot:
         self.max_pitch = math.pi / 4
         self.min_pitch = -math.pi / 4
         self.timeout_t = 10
+        self.kp_yaw = 0.07
+        self.kp_pitch = -0.07
 
         # fields
         self.setpoint_yaw = 0    # the yaw setpoint in radians +right, -left
@@ -62,8 +64,8 @@ class AimBot:
         # print data.distance
         # print data.y_rotation
         # print data.z_rotation
-        new_yaw = self.setpoint_yaw + data.z_rotation
-        new_pitch = self.setpoint_pitch + data.y_rotation
+        new_yaw = self.setpoint_yaw + self.kp_yaw * data.y_rotation
+        new_pitch = self.setpoint_pitch + self.kp_pitch * data.z_rotation
 
         # check target locked
         new_yaw_valid = new_yaw < self.max_yaw and new_yaw > self.min_yaw

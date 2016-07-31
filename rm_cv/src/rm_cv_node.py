@@ -3,6 +3,7 @@
 import time
 import pexpect
 import sys
+import os
 
 # ros imports
 import rospy
@@ -20,12 +21,14 @@ class RMCV:
         rospy.init_node('rm_cv', anonymous=True)
 
         # call the cv program
-        cv_process = pexpect.spawn("/home/pico/catkin_ws/src/robomasters_ros/rm_cv/src/client.py")
+        darknet = '/home/ubuntu/RoboMasters_2016/Computer_Vision/code/darknet_07_04_2016/darknet'
+        cv_process = pexpect.spawn(darknet, ['yolo', 'demo'], cwd=os.path.dirname(darknet))
 
         while not rospy.is_shutdown():
             try:
                 cv_process.expect('\n')
                 line = cv_process.before.rstrip()
+                print line
                 if line == "---":
                     cv_process.expect('\n')
                     color = cv_process.before.rstrip()
