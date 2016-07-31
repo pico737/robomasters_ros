@@ -30,3 +30,14 @@
     `rostopic list`
  
     `rosrun trapezoid client.py`
+    
+4. to edit the file
+    `roscd trapezoid/src` `gedit trapezoid_node.py`
+    `roscd aimbot/src` `gedit aimbot_node.py`
+    `roscd rm_cv/src` `gedit rm_cv_node.py`
+
+5. to run the complete program
+    `roscore`
+    `rosrun trapezoid trapezoid_node.py`
+    `rosrun aimbot aimbot_node.py`
+    `rosrun rm_cv rm_cv_node.py`
