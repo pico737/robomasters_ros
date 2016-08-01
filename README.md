@@ -1,5 +1,8 @@
 # robomasters_ros
 
+## System Architecture
+![block diagram](http://i.imgur.com/X2inPDR.jpg)
+
 ## Get start
 1. check if your computer has a catkin workspace in ~/ directory. If not, 
 
