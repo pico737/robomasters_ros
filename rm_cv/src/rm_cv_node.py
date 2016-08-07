@@ -20,6 +20,9 @@ class RMCV:
         self.dr_pub = rospy.Publisher('/aimbot/detected_enemy', DetectedRobot, queue_size=10)
         rospy.init_node('rm_cv', anonymous=True)
 
+        self.dr_pubself = rospy.Publisher('/aimbot/detected_self', DetectedRobot, queue_size=10)
+        rospy.init_node('rm_cv', anonymous=True)
+
         # call the cv program
         darknet = '/home/ubuntu/RoboMasters_2016/Computer_Vision/code/darknet_07_04_2016/darknet'
         cv_process = pexpect.spawn(darknet, ['yolo', 'demo'], cwd=os.path.dirname(darknet))
@@ -45,6 +48,13 @@ class RMCV:
                         dr_req.y_rotation = y_rotation
                         dr_req.z_rotation = z_rotation
                         self.dr_pub.publish(dr_req)
+                    else:
+                        dr_self = DetectedRobot()
+                        dr_self.distance = distance
+                        dr_self.y_rotation = y_rotation
+                        dr_self.z_rotation = z_rotation
+                        self.dr_self.publish(dr_self)
+                        
             except pexpect.EOF:
                 break
         print "ros shutdown"

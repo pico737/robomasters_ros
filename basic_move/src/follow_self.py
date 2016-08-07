@@ -23,23 +23,13 @@ def robot_choice(self,data):
 	angle = data.z_rotation
 	dist = data.distance
 	rot = room_to_move(angle,dist)
-	whose = whoseBot(data)
 
-	if whose:
-		pub.publish(dist,angle,20,rot)
-	else:
-		print("shoot")
+	pub.publish(dist,angle,70,rot)
+
 		#shooting?
 
 
 
-
-
-def whoseBot(data):
-	if data.type is 'enemy':
-		return false
-	else:
-		return true
 
 def room_to_move(angle,dist):
 	start = angle/a_inc
@@ -114,5 +104,12 @@ def move_pos(scan,angle_increment):
 def listener():
     rospy.init_node('follow_self', anonymous=True)
     rospy.Subscriber("/scan", LaserScan, laser_handle)
-    ospy.Subscriber('/aimbot/detected_enemy',DetectedRobot,robot_choice)
+    rospy.Subscriber('/aimbot/detected_self',DetectedRobot,robot_choice)
     rospy.spin()
+
+
+if __name__ == '__main__':
+    try:
+        listener()
+    except rospy.ROSInterruptException:
+        pass
