@@ -42,7 +42,10 @@ def easy (data):
 def handle_scan(data):
 	farthest = move_pos(data)
  	angle = data.angle_increment*(farthest[bot-1]+farthest[0])/2
- 	pub.publish(50,0,angle)
+ 	if sum(farthest)/len(farthest) <= .05:
+ 		pub.publish(-20,0,10) #in case of wall, values must be modified to actually work
+ 	else:
+ 		pub.publish(50,0,angle)
 
 
 
