@@ -15,7 +15,7 @@ class BaseMove:
         self.drive_const = 100
         self.strafe_const = 100
         self.rotate_const = 100
-        self.time_between_move_s = 1
+        self.time_between_move_s = 3
 
         # class fields
         self.drive_req = 0
@@ -32,18 +32,19 @@ class BaseMove:
 
         # main control loop
         while not rospy.is_shutdown():
-            # generate choices
-            drive_choice = random.randint(-1, 1)
-            strafe_choice = random.randint(-1, 1)
-            rotate_choice = random.randint(-1, 1)
+            apply_choice(1, 0, 0)
+            time.sleep(self.time_between_move_s)
+            apply_choice(0, 1, 0)
+            time.sleep(self.time_between_move_s)
+            apply_choice(-1, 0, 0)
+            time.sleep(self.time_between_move_s)
+            apply_choice(0, -1, 0)
+            time.sleep(self.time_between_move_s)
 
-            # apply choices
+    def apply_choice(self, drive_choice, strafe_choice, rotate_choice):
             self.drive_req = drive_choice * self.drive_const
             self.strafe_req = strafe_choice * self.strafe_const
             self.rotate_req = rotate_choice * self.rotate_const
-
-            # wait time interval
-            time.sleep(self.time_between_move_s)
 
     def pub_process(self):
         rate = rospy.Rate(10) # 10hz
