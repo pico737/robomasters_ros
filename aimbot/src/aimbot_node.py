@@ -20,12 +20,8 @@ class AimBot:
         self.max_pitch = math.pi / 4
         self.min_pitch = -math.pi / 4
         self.timeout_t = 10
-        self.kp_yaw = 0.1
-        self.ki_yaw = 0
-        self.kd_yaw = 0
-        self.kp_pitch = -0.1
-        self.ki_pitch = 0
-        self.kd_pitch = 0
+        self.kp_yaw = 0.07
+        self.kp_pitch = -0.07
 
         # fields
         self.setpoint_yaw = 0    # the yaw setpoint in radians +right, -left
@@ -33,10 +29,6 @@ class AimBot:
         self.target_locked = False  # true when enemy lock is valid
         self.detected_enemy_timeout = 0  # timeout counter, timed out when 0
         self.shoot = 0 # true to shoot
-        self.yaw_error_pre = 0 # store for PID
-        self.pitch_error_pre = 0 # store for PID
-        self.yaw_inte = 0 #integrator for PID
-        self.pitch_inte = 0 #integrator for PID
 
         # ---------------- setup ros ----------------
         # publishers
@@ -72,12 +64,8 @@ class AimBot:
         # print data.distance
         # print data.y_rotation
         # print data.z_rotation
-        new_yaw = self.setpoint_yaw + self.kp_yaw * data.y_rotation
-        new_pitch = self.setpoint_pitch + self.kp_pitch * data.z_rotation
-        # new_yaw = self.setpoint_yaw + self.pid_calculation(data.y_rotation, self.yaw_error_pre, self.yaw_inte, self.kp_yaw, self.ki_yaw, self. kd_yaw)
-        # new_pitch = self.setpoint_pitch + self.pid_calculation(data.z_rotation, self.pitch_error_pre,  self.pitch_inte, self.kp_pitch, self.ki_pitch, self. kd_pitch)
-        self.yaw_error_pre = data.y_rotation
-        self.pitch_error_pre = data.z_rotation
+        new_yaw = self.setpoint_yaw + self.kp_yaw * data.z_rotation
+        new_pitch = self.setpoint_pitch + self.kp_pitch * data.y_rotation
 
         # check target locked
         new_yaw_valid = new_yaw < self.max_yaw and new_yaw > self.min_yaw
@@ -117,14 +105,6 @@ class AimBot:
         shoot_req.feeder_motor_state = self.shoot
         shoot_req.friction_motor_state = 0 # we don't care about this for now
         self.pub_setpoint_shoot.publish(shoot_req)
-
-    def pid_calculation(self, error, error_pre, inte, kp, ki, kd):
-
-        inte = inte + error
-
-        output = error * kp + inte * ki + (error - error_pre) * kd
-        
-        return output
 
 if __name__ == '__main__':
     try:
