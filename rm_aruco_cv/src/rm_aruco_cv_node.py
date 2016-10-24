@@ -18,10 +18,12 @@ class RMAruco:
         self.dr_pub = rospy.Publisher('/aimbot/detected_enemy', DetectedRobot, queue_size=10)
 
         # subscribers
-        rospy.Subscriber('/ar_sys/pose', PoseStamped, self.handle_pose)
+        rospy.Subscriber('/ar_single_board/pose', PoseStamped, self.handle_pose)
 
         # init the node
         rospy.init_node('rm_aruco_cv', anonymous=True)
+
+        rospy.spin()
 
     def handle_pose(self, data):
         # we're only interested in the position
@@ -36,7 +38,7 @@ class RMAruco:
 
         # calculate y rotation
         # tan(theta) = y_pos / z_pos
-        dr_req.y_rotation = math.atan(y_pos / z_pos)
+        dr_req.y_rotation = -math.atan(y_pos / z_pos)
 
         # calculate z rotation
         # tan(theta) = x_pos / z_pos
