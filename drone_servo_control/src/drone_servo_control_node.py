@@ -1,0 +1,52 @@
+#!/usr/bin/env python
+
+# general imports
+import serial
+import time
+
+# ros imports
+import rospy
+from dji_sdk.msg import RCChannels
+
+
+class DroneServoControl:
+    def __init__(self, serial_port, baudrate):
+        self.gear_state = 0
+        self.prev_gear_state = 0
+
+        # -------- setup ros --------
+        # setup subscriber
+        rospy.Subscriber('/dji_sdk/rc_channels', RCChannels, self.handle_rc_channels)
+
+        # init the node
+        rospy.init_node('drone_servo_control', anonymous=True)
+
+        # -------- setup serial port --------
+        self.arduino_serial = serial.Serial(serial_port, baudrate, timeout=1)
+
+        # reset the arduino on connect
+        self.arduino_serial.setDTR(True)
+        time.sleep(1)
+        self.arduino_serial.setDTR(False)
+
+        # -------- main control loop --------
+        rospy.spin()
+
+    def handle_rc_channels(self, data):
+        rxd_gear = data.gear
+        if (rxd_gear == -10000):
+            self.gear_state = 1
+        else:
+            self.gear_state = 0
+        if (self.gear_state != self.prev_gear_state):
+            self.arduino_send(self.gear_state)
+        self.prev_gear_state = self.gear_state
+
+    def arduino_send(self, servo_state):
+        self.arduino_serial.write(chr(servo_state))
+
+if __name__ == '__main__':
+    try:
+        DroneServoControl('/dev/ttyACM0', 9600)
+    except rospy.ROSInterruptException:
+        pass
